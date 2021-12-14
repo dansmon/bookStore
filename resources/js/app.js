@@ -1,32 +1,101 @@
-/**
- * First we will load all of this project's JavaScript dependencies which
- * includes Vue and other libraries. It is a great starting point when
- * building robust, powerful web applications using Vue and Laravel.
- */
-
 require('./bootstrap');
 
-window.Vue = require('vue').default;
+import Vue from 'vue';
+import Admin_home from './vue/admin_home';
+import Admin_resren from './vue/admin_resren';
+import User_home from './vue/user_home';
+import User_resren from './vue/user_resren';
 
-/**
- * The following block of code may be used to automatically register your
- * Vue components. It will recursively scan this directory for the Vue
- * components and automatically register them with their "basename".
- *
- * Eg. ./components/ExampleComponent.vue -> <example-component></example-component>
- */
+import VueObserveVisibility from 'vue-observe-visibility';
 
-// const files = require.context('./', true, /\.vue$/i)
-// files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default))
+Vue.use(VueObserveVisibility);
 
-Vue.component('example-component', require('./components/ExampleComponent.vue').default);
+import { library } from '@fortawesome/fontawesome-svg-core';
+import {
+    faPlusSquare,
+    faTrash,
+    faPencilAlt,
+    faCut,
+    faWindowClose,
+    faWind,
+    faSave,
+    faSearch,
+    faPlus,
+    faCheck,
+    faTimes,
+    faBook,
+    faBookReader,
+    faClock,
+    faBackward,
+    faForward,
+    faAngleDown,
+    faUser,
+    faHammer,
+    faMinus,
+    faArrowsAltV,
+    faCheckCircle
+} from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import 'vue-search-select/dist/VueSearchSelect.css';
 
-/**
- * Next, we will create a fresh Vue application instance and attach it to
- * the page. Then, you may begin adding components to this application
- * or customize the JavaScript scaffolding to fit your unique needs.
- */
+library.add(
+    faPlusSquare,
+    faTrash,
+    faPencilAlt,
+    faCut,
+    faWindowClose,
+    faSave,
+    faSearch,
+    faPlus,
+    faCheck,
+    faTimes,
+    faBook,
+    faBookReader,
+    faClock,
+    faBackward,
+    faForward,
+    faAngleDown,
+    faUser,
+    faHammer,
+    faMinus,
+    faArrowsAltV,
+    faCheckCircle
+);
 
-const app = new Vue({
-    el: '#app',
+Vue.component('font-awesome-icon', FontAwesomeIcon);
+Vue.directive('click-outside', {
+    bind(el, { value }) {
+        el._handler = (e) => {
+            if (!el.contains(e.target)) {
+                value(e);
+            }
+        };
+
+        // *** Using capturing ***
+        document.addEventListener('click', el._handler, { capture: true });
+    },
+
+    unbind(el) {
+        document.removeEventListener('click', el._handler, { capture: true });
+    }
+});
+
+const admin_home = new Vue({
+    el: '#admin_home',
+    components: { Admin_home }
+});
+
+const admin_resren = new Vue({
+    el: '#admin_resren',
+    components: { Admin_resren }
+});
+
+const user_home = new Vue({
+    el: '#user_home',
+    components: { User_home }
+});
+
+const user_resren = new Vue({
+    el: '#user_resren',
+    components: { User_resren }
 });

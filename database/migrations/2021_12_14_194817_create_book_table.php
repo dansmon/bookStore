@@ -14,7 +14,14 @@ class CreateBookTable extends Migration
     public function up()
     {
         Schema::create('book', function (Blueprint $table) {
-            $table->id();
+            $table->bigIncrements('id');
+            $table->string('naslov');
+            $table->string('leto_izdaje');
+            $table->string('avtor');
+            $table->string('kategorija');
+            $table->string('ident');
+            $table->string('zap');
+            $table->string('bookImage');
             $table->timestamps();
         });
     }

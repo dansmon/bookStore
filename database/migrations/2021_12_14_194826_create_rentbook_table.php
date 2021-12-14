@@ -14,7 +14,13 @@ class CreateRentbookTable extends Migration
     public function up()
     {
         Schema::create('rentbook', function (Blueprint $table) {
-            $table->id();
+            $table->bigIncrements('id');
+            $table->string('id_ident');
+            $table->string('id_zap');
+            $table->integer('id_member');
+            $table->date('datum_od');
+            $table->date('datum_do');
+            $table->integer('status'); // 0- rezervacija oz izposoja končana; 1-rezervirana; 2-rezervacija in izposoja, 3-izposoja      
             $table->timestamps();
         });
     }
