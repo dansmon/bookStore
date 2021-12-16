@@ -494,18 +494,8 @@ export default {
         checkSearchBtn() {
             if (this.termDate != this.tempTermDate || this.durResRen != this.tempDurResRen) {
                 this.btn_searchChanged = true;
-                console.log('true');
-                console.log(this.termDate + ' termDate');
-                console.log(this.tempTermDate + ' TEMP termDate');
-                console.log(this.durResRen + ' durResRen');
-                console.log(this.tempDurResRen + ' TEMP durResRen');
             } else {
                 this.btn_searchChanged = false;
-                console.log('false');
-                console.log(this.termDate + ' termDate');
-                console.log(this.tempTermDate + ' TEMP termDate');
-                console.log(this.durResRen + ' durResRen');
-                console.log(this.tempDurResRen + ' TEMP durResRen');
             }
         },
 
