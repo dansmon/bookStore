@@ -90,7 +90,11 @@
                                             <table style="width: 100%">
                                                 <tr colspan="6">
                                                     <td style="width: 25%; border-top: 0px" colspan="2">
-                                                        <button v-if="resRen.status == '1' || resRen.status == '2'" class="btn btn-primary" @click="fnResRen(resRen.id, '01', null)">
+                                                        <button
+                                                            v-if="(resRen.status == '1' || resRen.status == '2') && resRen.prekoracitev != 1"
+                                                            class="btn btn-primary"
+                                                            @click="fnResRen(resRen.id, '01', null)"
+                                                        >
                                                             <div>Končaj rezervacijo &nbsp; &nbsp;<font-awesome-icon icon="check-circle" /></div>
                                                         </button>
                                                         <button v-if="resRen.status == '2' || resRen.status == '3'" class="btn btn-primary" @click="fnResRen(resRen.id, '02', resRen.status)">

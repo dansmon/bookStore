@@ -50,7 +50,7 @@
                     <div style="font-size: 1.1em; text-align: center">Obdobje dni</div>
 
                     <div style="text-align: center">
-                        <span style="font-size: 1.2em"> {{ durResRen }} </span> <br />
+                        <span style="font-size: 1.2em"> {{ this.tempDurResRen }} </span> <br />
                     </div>
                     <div style="text-align: center">
                         <button id="btnBackDuration" :class="this.btn_back_duration_d == true ? 'btn btn-secondary disabled' : 'btn btn-primary'" @click="setDuration('back')">
@@ -63,7 +63,7 @@
                     </div>
                 </div>
                 <br /><br />
-                <button class="btn btn-primary container-fluid" @click="filterBooks(true)">
+                <button :class="this.btn_searchChanged == false ? 'btn btn-primary container-fluid' : 'btn btn-warning container-fluid'" @click="filterBooks(true)">
                     <div><font-awesome-icon icon="search" /></div>
                 </button>
             </div>
@@ -130,7 +130,7 @@
                     <div style="padding-top: 10px" class="padMar">
                         <div v-if="this.modalMode == 'res'">
                             <div>
-                                {{ this.dateMonthName }}
+                                {{ this.dateNowP.dateMonthName }}
                             </div>
 
                             <div>
@@ -226,10 +226,13 @@ export default {
         return {
             allBooks: [],
             termDate: '',
+            tempTermDate: '',
             durResRen: 10,
+            tempDurResRen: 10,
             btn_back_date_d: true,
             btn_back_duration_d: true,
             btn_next_duration_d: false,
+            btn_searchChanged: false,
 
             scrolledToBottom: false,
 
@@ -263,7 +266,8 @@ export default {
                     dateDisplay: '',
                     dateDefault: '',
                     dateFirstDay: '',
-                    dateMonthName: ''
+                    dateMonthName: '',
+                    tempMonthName: ''
                 }
             ]
         };
@@ -290,52 +294,57 @@ export default {
         // ** nastavitev meseca izposoje
         setDate($method) {
             var dateNow = new Date();
-            var dateObdobje_t = new Date(this.termDate);
             var months = ['Januar', 'Februar', 'Marec', 'April', 'Maj', 'Junij', 'Julij', 'Avgust', 'September', 'Oktober', 'November', 'December'];
 
             if ($method == 'now') {
-                this.termDate = this.dateNowP.dateDefault;
+                this.tempTermDate = this.dateNowP.dateDefault;
                 $('#id_dateDisplay').text(this.dateNowP.dateDisplay);
                 this.btn_back_date_d = true;
+                this.dateNowP.tempMonthName = months[dateNow.getMonth()];
             } else if ($method == 'next') {
-                var dateCurrent = new Date(this.termDate == '' || this.btn_back_date_d == true ? this.dateNowP.dateFirstDay : this.termDate);
+                var dateCurrent = new Date(this.tempTermDate == '' || this.btn_back_date_d == true ? this.dateNowP.dateFirstDay : this.tempTermDate);
                 var dateNext = new Date(dateCurrent.getFullYear(), dateCurrent.getMonth() + 1, dateCurrent.getDate());
-                this.termDate = dateNext.getFullYear() + '-' + ('0' + (dateNext.getMonth() + 1)).slice(-2) + '-' + ('0' + dateNext.getDate()).slice(-2);
+                this.tempTermDate = dateNext.getFullYear() + '-' + ('0' + (dateNext.getMonth() + 1)).slice(-2) + '-' + ('0' + dateNext.getDate()).slice(-2);
                 $('#id_dateDisplay').text(months[dateNext.getMonth()] + ', ' + dateNext.getFullYear());
                 this.btn_back_date_d = false;
+                this.dateNowP.tempMonthName = months[dateNext.getMonth()];
             } else if ($method == 'back') {
-                var dateCurrent = new Date(this.termDate);
+                var dateCurrent = new Date(this.tempTermDate);
                 var dateBack = new Date(dateCurrent.getFullYear(), dateCurrent.getMonth() - 1, dateCurrent.getDate());
                 $('#id_dateDisplay').text(months[dateBack.getMonth()] + ', ' + dateBack.getFullYear());
 
                 if (dateBack.getFullYear() == dateNow.getFullYear() && dateBack.getMonth() + 1 == dateNow.getMonth() + 1) {
                     this.btn_back_date_d = true;
                     $('#id_dateDisplay').text(('0' + dateNow.getDate()).slice(-2) + '.' + ('0' + (dateNow.getMonth() + 1)).slice(-2) + '.' + dateNow.getFullYear());
+                    dateBack = dateNow;
                 }
 
-                this.termDate = dateBack.getFullYear() + '-' + ('0' + (dateBack.getMonth() + 1)).slice(-2) + '-' + ('0' + dateBack.getDate()).slice(-2);
+                this.tempTermDate = dateBack.getFullYear() + '-' + ('0' + (dateBack.getMonth() + 1)).slice(-2) + '-' + ('0' + dateBack.getDate()).slice(-2);
+                this.dateNowP.tempMonthName = months[dateBack.getMonth()];
             }
+            this.checkSearchBtn();
         },
 
         // ** nastavitev obdobja izposoje
         setDuration($method) {
             if ($method == 'back') {
-                this.durResRen = this.durResRen - 10;
-                if (this.durResRen == '10') {
+                this.tempDurResRen = this.tempDurResRen - 10;
+                if (this.tempDurResRen == '10') {
                     this.btn_back_duration_d = true;
                 } else {
                     this.btn_back_duration_d = false;
                     this.btn_next_duration_d = false;
                 }
             } else if ($method == 'next') {
-                this.durResRen = this.durResRen + 10;
-                if (this.durResRen == '30') {
+                this.tempDurResRen = this.tempDurResRen + 10;
+                if (this.tempDurResRen == '30') {
                     this.btn_next_duration_d = true;
                 } else {
                     this.btn_back_duration_d = false;
                     this.btn_next_duration_d = false;
                 }
             }
+            this.checkSearchBtn();
         },
 
         // ** Modalno okno za rezervacijo knjige
@@ -468,6 +477,10 @@ export default {
         filterBooks($boolFresh) {
             if ($boolFresh == true) {
                 this.allBooks = [];
+                this.dateNowP.dateMonthName = this.dateNowP.tempMonthName;
+                this.termDate = this.tempTermDate;
+                this.durResRen = this.tempDurResRen;
+                this.btn_searchChanged = false;
             }
 
             this.f_title == '' ? (this.f_title = null) : (this.f_title = this.f_title);
@@ -475,6 +488,25 @@ export default {
             this.f_year == '' ? (this.f_year = null) : (this.f_year = this.f_year);
             this.f_category == '' ? (this.f_category = null) : (this.f_category = this.f_category);
             this.getAllBooks(this.allBooks.length, 8, this.termDate, this.durResRen, this.f_title, this.f_author, this.f_year, this.f_category);
+        },
+
+        // ** Preveri, če so bile spremembe pri nastavitvi termina oz. obdobja izposoja / rezervacije
+        checkSearchBtn() {
+            if (this.termDate != this.tempTermDate || this.durResRen != this.tempDurResRen) {
+                this.btn_searchChanged = true;
+                console.log('true');
+                console.log(this.termDate + ' termDate');
+                console.log(this.tempTermDate + ' TEMP termDate');
+                console.log(this.durResRen + ' durResRen');
+                console.log(this.tempDurResRen + ' TEMP durResRen');
+            } else {
+                this.btn_searchChanged = false;
+                console.log('false');
+                console.log(this.termDate + ' termDate');
+                console.log(this.tempTermDate + ' TEMP termDate');
+                console.log(this.durResRen + ' durResRen');
+                console.log(this.tempDurResRen + ' TEMP durResRen');
+            }
         },
 
         // ** funkcija, ki sproži dodatno nalaganje knjig, ko pridemo do konca strani
@@ -494,8 +526,10 @@ export default {
         this.dateNowP.dateDisplay = ('0' + dateNow.getDate()).slice(-2) + '.' + ('0' + (dateNow.getMonth() + 1)).slice(-2) + '.' + dateNow.getFullYear();
         this.dateNowP.dateDefault = dateNow.getFullYear() + '-' + ('0' + (dateNow.getMonth() + 1)).slice(-2) + '-' + ('0' + dateNow.getDate()).slice(-2);
         this.dateNowP.dateFirstDay = dateNow.getFullYear() + '-' + ('0' + (dateNow.getMonth() + 1)).slice(-2) + '-01';
-        this.dateMonthName = month[dateNow.getMonth()];
+        this.dateNowP.dateMonthName = month[dateNow.getMonth()];
+        this.dateNowP.tempMonthName = month[dateNow.getMonth()];
         this.termDate = this.dateNowP.dateDefault;
+        this.tempTermDate = this.dateNowP.dateDefault;
 
         // ? '/{od}/{do}/{date}/{duration}/{title}/{author}/{year}/{category}'
         this.getAllBooks(0, 8, this.termDate, this.durResRen, null, null, null, null);
