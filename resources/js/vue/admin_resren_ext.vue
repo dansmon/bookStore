@@ -981,7 +981,7 @@ export default {
     right: 0;
     bottom: 0;
     left: 0;
-    width: 350px;
+    width: 430px;
     height: 250px;
 }
 

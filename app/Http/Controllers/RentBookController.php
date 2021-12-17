@@ -37,7 +37,7 @@ class RentBookController extends Controller
             - knjige, ki so v izposoji, vendar trenutni datum presega rok datuma do katerega bi morale biti vrnjene, takšne knjige se prikažejo z informacijo o prekoračitvi
             - p_renting vsebuje informacijo o tem ali je pri tej knjigi že možen prehod v stanje izposoje iz stanja rezervacija      
         */
-        $titles = rentBook::query('id', 'ASC')
+        $titles = rentBook::orderBy('id', 'ASC')
             ->select([
                 'rentbook.id', 'rentbook.id_ident', 'rentbook.id_zap', 'rentbook.id_member', 'book.naslov', 'rentbook.status', 'users.name',
                 rentBook::raw('
@@ -266,19 +266,14 @@ class RentBookController extends Controller
             else if ($di_indikator == 100)
                 $di_indikatorStopnje = 5;
 
-            else if ($FE_stDniRezIzp == 10) {
-                if ($di_indikator > 0 && $di_indikator <= 30)
-                    $di_indikatorStopnje = 2;
-                else if ($di_indikator > 30 && $di_indikator <= 60)
-                    $di_indikatorStopnje = 3;
-                else if ($di_indikator > 60 && $di_indikator < 100)
-                    $di_indikatorStopnje = 4;
-            } else if ($FE_stDniRezIzp == 20 || $FE_stDniRezIzp == 30) {
-                if ($di_indikator >= 45)
-                    $di_indikatorStopnje = 4;
-                else
-                    $di_indikatorStopnje = 2;
-            }
+
+            else if ($di_indikator > 0 && $di_indikator <= 30)
+                $di_indikatorStopnje = 2;
+            else if ($di_indikator > 30 && $di_indikator <= 60)
+                $di_indikatorStopnje = 3;
+            else if ($di_indikator > 60 && $di_indikator < 100)
+                $di_indikatorStopnje = 4;
+
 
             // ** za prikaz napolni polje z določenimi vrednostmi ** --> X = zasedeno, P = prosto, R = moznost rezervacije / izposoje 
             for ($v = 1; $v <= $stDniMesecFE; $v++) {
