@@ -393,6 +393,10 @@
                                                                                                     >
                                                                                                         <div><font-awesome-icon icon="book-reader" />&nbsp; Izposodi</div>
                                                                                                     </button>
+                                                                                                    <div v-if="subBook.prekoracitev == true" style="display: inline-block; color: red">
+                                                                                                        &nbsp;&nbsp;<font-awesome-icon icon="exclamation-circle" />&nbsp; Knjiga presega rok izposoje in
+                                                                                                        še ni bila vrnjena, zato je ni mogoče rezervirati / izposoditi.
+                                                                                                    </div>
                                                                                                 </td>
                                                                                             </tr>
                                                                                         </table>

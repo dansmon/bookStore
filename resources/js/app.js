@@ -33,7 +33,8 @@ import {
     faHammer,
     faMinus,
     faArrowsAltV,
-    faCheckCircle
+    faCheckCircle,
+    faExclamationCircle
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import 'vue-search-select/dist/VueSearchSelect.css';
@@ -59,7 +60,8 @@ library.add(
     faHammer,
     faMinus,
     faArrowsAltV,
-    faCheckCircle
+    faCheckCircle,
+    faExclamationCircle
 );
 
 Vue.component('font-awesome-icon', FontAwesomeIcon);

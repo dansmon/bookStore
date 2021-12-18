@@ -141,13 +141,28 @@ class RentBookController extends Controller
 
             // ** izbere vse datume OD - DO iz rezervacije in izposoje, ki so vezani na določeno pod-knjigo z istim naslovom **
             $dates = rentBook::orderBy('datum_od', 'ASC')
-                ->select(['rentbook.datum_od', 'rentbook.datum_do', 'rentbook.id_ident'])
+                ->select([
+                    'rentbook.datum_od', 'rentbook.datum_do', 'rentbook.id_ident',
+                    rentBook::raw('
+                        CASE WHEN rentbook.datum_do < CURRENT_DATE AND (rentbook.status = 2 OR rentbook.status = 3) 
+                            THEN 1
+                            ELSE 0 
+                        END
+                        as prekoracitev'),
+                ])
                 //| ->where('rentbook.datum_do', '>=', $zeljeniMesec)
                 //| ->where('rentbook.datum_do', '>=', rentBook::raw('CURRENT_DATE'))
                 ->where('rentbook.id_ident', '=', $books[$x]->ident)
                 ->where('rentbook.id_zap', '=', $books[$x]->zap)
                 ->where('rentbook.status', '<>', '0')
                 ->get();
+
+            // ** Če je prekoračitev, se nadaljne ne bo preverjalo možnih terminov    
+            $boolPrekoracitev = false;
+            foreach ($dates as $date) {
+                if ($date->prekoracitev == 1)
+                    $boolPrekoracitev = true;
+            }
 
             // ** rezervira polje 62 mest in jim kot default določi 'P' (kasneje se v teh poljih nadomesti "X" za dneve, ki je knjiga zasedena) **           
             for ($y = 1; $y <= 62; $y++) {
@@ -187,28 +202,30 @@ class RentBookController extends Controller
 
             // ** glede na željeno število dni rezervacije se preveri kateri dnevi so možni za rezervacijo **
             for ($w = 1; $w < count($mergedReservation); $w++) {
-                if ($mergedReservation[$w] == 'P') {
-                    $terminOK = true;
-                    if ($FE_stDniRezIzp + $w <= count($mergedReservation)) {
-                        for ($q = $w; ($q < $FE_stDniRezIzp + $w); $q++) {
-                            if ($mergedReservation[$q] == 'X') {
-                                $terminOK = false;
-                                break;
+                if ($boolPrekoracitev == false) {
+                    if ($mergedReservation[$w] == 'P') {
+                        $terminOK = true;
+                        if ($FE_stDniRezIzp + $w <= count($mergedReservation)) {
+                            for ($q = $w; ($q < $FE_stDniRezIzp + $w); $q++) {
+                                if ($mergedReservation[$q] == 'X') {
+                                    $terminOK = false;
+                                    break;
+                                }
                             }
-                        }
-                    } else {
-                        $terminOK = false;
-                    }
-
-                    if ($terminOK == true) {
-                        if (date($FE_mesecRezIzp) > $zadnjiDanMesecNOW) {
-                            $mergedReservation[$w] = 'R';
                         } else {
-                            if ($w >= (date('d'))) {
-                                $mergedReservation[$w] = 'R';
-                            }
+                            $terminOK = false;
                         }
-                        $mozniTermini[] = $w;
+
+                        if ($terminOK == true) {
+                            if (date($FE_mesecRezIzp) > $zadnjiDanMesecNOW) {
+                                $mergedReservation[$w] = 'R';
+                            } else {
+                                if ($w >= (date('d'))) {
+                                    $mergedReservation[$w] = 'R';
+                                }
+                            }
+                            $mozniTermini[] = $w;
+                        }
                     }
                 }
             }
@@ -322,8 +339,8 @@ class RentBookController extends Controller
                 'monthName' => $month[intval(date('m', strtotime($FE_mesecRezIzp)))],
                 'r_datumOD' => "",
                 'r_datumDO' => "",
-                "b_reservation" => $b_reservation
-
+                "b_reservation" => $b_reservation,
+                "prekoracitev" => $boolPrekoracitev
             );
 
             array_push($booksAI, $book);
